@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "Controlador", urlPatterns = {"/Controlador"})
 public class Controlador extends HttpServlet {
 
-
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -36,33 +35,41 @@ public class Controlador extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-            String cantidad = request.getParameter("numero");
-            String clausulaWhere = "";
-            String url = "";
-            boolean error = false;
 
-            if (request.getParameter("all") != null) {
-                clausulaWhere = "";
-            } else if (cantidad != null) {
-                clausulaWhere = " limit " + cantidad;
-            } else {
-                error = true;
-            }
+        String cantidad = request.getParameter("numero");
+        String clausulaWhere = "";
+        String url = "";
+        boolean error = false;
 
-            if (!error) {
-                IAlumnosDAO adao = new AlumnosDAO();
-                ArrayList<Alumno> alumnos = adao.getAlumnos(clausulaWhere);
-                
-                request.setAttribute("alumnos", alumnos);
-                url = "JSP/salida.jsp";
-            }else{
-                request.setAttribute("error", "No se han pasado parámetros");
-                url = "JSP/error.jsp";
-            }
+        if (request.getParameter("all") != null) {
+            clausulaWhere = "";
+        } else if (cantidad != null) {
+            clausulaWhere = " limit " + cantidad;
+        } else {
+            error = true;
+        }
 
-            request.getRequestDispatcher(url).forward(request, response);
+        if (!error) {
+                if (request.getParameter("all").equals("equipo")) {
+                    IAlumnosDAO adao = new AlumnosDAO();
+                    ArrayList<Alumno> alumnosYequipos = adao.getAlumnosEquipo();
+
+                    request.setAttribute("alumnosYequipos", alumnosYequipos);
+                    url = "JSP/salida2.jsp";
+                } else {
+                    IAlumnosDAO odao = new AlumnosDAO();
+                    ArrayList<Alumno> alumnos = odao.getAlumnos(clausulaWhere);
+
+                    request.setAttribute("alumnos", alumnos);
+                    url = "JSP/salida1.jsp";
+                }
+            
+        } else {
+            request.setAttribute("error", "No se han pasado parámetros");
+            url = "JSP/error.jsp";
+        }
+
+        request.getRequestDispatcher(url).forward(request, response);
     }
-
 
 }
